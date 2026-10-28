@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SignSteps AR — Learn Sign by Sign</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark">✋</span><span>SignSteps <b>AR</b></span></div>
+    <div class="top-note">Learn one sign at a time</div>
+  </header>
+  <main>
+    <section id="welcomeScreen" class="welcome-screen">
+      <p class="eyebrow">WELCOME TO SIGNSTEPS AR</p>
+      <h1>Learn one sign at a time.</h1>
+      <p class="welcome-lead">Choose a letter to begin practising Indian Sign Language. Complete each letter to unlock the next lesson.</p>
+      <div class="levels" aria-label="Choose a practice letter">
+        <button type="button" class="level-btn" data-sign="A">A</button>
+        <button type="button" class="level-btn locked" data-sign="B" disabled>B <span class="lock">🔒</span></button>
+        <button type="button" class="level-btn locked" data-sign="C" disabled>C <span class="lock">🔒</span></button>
+      </div>
+      <p class="level-hint">Start with A. Finish a letter to unlock the next one.</p>
+      <p class="privacy">🔒 Camera frames are processed in your browser and are not uploaded or saved by this app.</p>
+    </section>
+    <section id="practiceScreen" class="practice-screen" hidden>
+      <button type="button" id="backBtn" class="back-button">← Back to letters</button>
+      <div class="practice-heading">
+        <div><p class="eyebrow">LIVE PRACTICE</p><h1>Practise letter <span id="practiceLetter">A</span></h1>
+        <p class="practice-lead">Match the fixed reference image while the camera tracks your hand.</p></div>
+        <span id="statusBadge" class="badge neutral">Camera off</span>
+      </div>
+      <div class="practice-card">
+        <div class="camera-stage" id="cameraStage">
+          <video id="webcam" autoplay playsinline muted></video>
+          <canvas id="overlay"></canvas>
+          <img id="signGuide" class="sign-guide" src="/images/img_A.png" alt="ISL letter A reference">
+          <div class="ar-guide-label">AR GUIDE · TARGET LETTER A</div>
+          <div class="camera-placeholder" id="placeholder">
+            <div class="camera-icon">◎</div><h3>Your camera preview appears here</h3>
+            <p>Use a well-lit room and keep your hand inside the frame.</p>
+          </div>
+          <div class="guide-label"><span class="guide-dot"></span> Hand landmark guide</div>
+        </div>
+        <div class="controls">
+          <button id="startBtn" class="primary" type="button">Start camera</button>
+          <button id="stopBtn" class="secondary" type="button" disabled>Stop camera</button>
+        </div>
+        <div class="feedback" aria-live="polite">
+          <div class="feedback-icon" id="feedbackIcon">◎</div>
+          <div><b id="feedbackTitle">Ready when you are</b><p id="feedbackText">Your camera will start when you choose a letter.</p></div>
+        </div>
+        <div id="completionMessage" class="completion-message" role="status" hidden></div>
+        <div class="metrics">
+          <div><span>Hands detected</span><b id="handsCount">0</b></div>
+          <div><span>Practice check</span><b id="gestureResult">Waiting</b></div>
+        </div>
+        <p class="fine-print">The letter check uses experimental hand-landmark measurements. It is not verified ISL recognition, so a match may occasionally be incorrect.</p>
+      </div>
+    </section>
+  </main>
+  <footer>SignSteps AR · Prototype · Progress resets when you refresh the page.</footer>
+  <script type="module" src="/app.js"></script>
+</body>
+</html>
