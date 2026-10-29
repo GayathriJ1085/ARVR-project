@@ -3,63 +3,141 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#5b2de0" />
   <title>SignSteps AR — Learn Sign by Sign</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%91%8B%3C/text%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
   <header class="topbar">
-    <div class="brand"><span class="brand-mark">✋</span><span>SignSteps <b>AR</b></span></div>
+    <div class="brand"><span class="brand-mark">SS</span><span>SignSteps <b>AR</b></span></div>
     <div class="top-note">Learn one sign at a time</div>
+    <a href="/ai-learning-lab.html" class="ai-lab-button">
+      Explore AI Learning Lab
+</a>
+
   </header>
+
   <main>
+    <!-- ============ WELCOME ============ -->
     <section id="welcomeScreen" class="welcome-screen">
-      <p class="eyebrow">WELCOME TO SIGNSTEPS AR</p>
+      <span class="deco deco-circle" aria-hidden="true"></span>
+      <span class="deco deco-square" aria-hidden="true"></span>
+      <span class="deco deco-star" aria-hidden="true">★</span>
+      <span class="deco deco-ring" aria-hidden="true"></span>
+      <span class="deco deco-spark" aria-hidden="true">✦</span>
+
+      <div class="hero-hand" aria-hidden="true"><span>⭐</span></div>
+      <p class="eyebrow">Welcome to SignSteps AR</p>
       <h1>Learn one sign at a time.</h1>
       <p class="welcome-lead">Choose a letter to begin practising Indian Sign Language. Complete each letter to unlock the next lesson.</p>
-      <div class="levels" aria-label="Choose a practice letter">
-        <button type="button" class="level-btn" data-sign="A">A</button>
-        <button type="button" class="level-btn locked" data-sign="B" disabled>B <span class="lock">🔒</span></button>
-        <button type="button" class="level-btn locked" data-sign="C" disabled>C <span class="lock">🔒</span></button>
+
+      <div class="game-progress" aria-live="polite">
+        <div class="progress-copy"><span>Your journey</span><b id="progressText">0 / 3 levels complete</b></div>
+        <div class="progress-track"><div id="progressFill" class="progress-fill"></div></div>
+        <div class="total-stars" id="totalStars" aria-label="Total points">⭐ Score: 0/3 points</div>
       </div>
-      <p class="level-hint">Start with A. Finish a letter to unlock the next one.</p>
+
+      <div class="levels" aria-label="Choose a practice letter">
+        <button type="button" class="level-btn" data-sign="A"><span class="level-letter">A</span><span class="level-stars" data-stars="A">☆ Not completed</span><span class="level-caption">Level 1</span></button>
+        <button type="button" class="level-btn locked" data-sign="B" disabled><span class="level-letter">B</span><span class="level-stars" data-stars="B">☆ Not completed</span><span class="level-caption">🔒 Level 2</span></button>
+        <button type="button" class="level-btn locked" data-sign="C" disabled><span class="level-letter">C</span><span class="level-stars" data-stars="C">☆ Not completed</span><span class="level-caption">🔒 Level 3</span></button>
+      </div>
+      <p class="level-hint">Complete a level, earn stars, and continue to the next letter.</p>
       <p class="privacy">🔒 Camera frames are processed in your browser and are not uploaded or saved by this app.</p>
     </section>
+
+    <!-- ============ PRACTICE ============ -->
     <section id="practiceScreen" class="practice-screen" hidden>
-      <button type="button" id="backBtn" class="back-button">← Back to letters</button>
       <div class="practice-heading">
-        <div><p class="eyebrow">LIVE PRACTICE</p><h1>Practise letter <span id="practiceLetter">A</span></h1>
-        <p class="practice-lead">Match the fixed reference image while the camera tracks your hand.</p></div>
+        <button type="button" id="backBtn" class="back-button">← Back to letters</button>
+        <div>
+          <p class="eyebrow">Live practice</p>
+          <h1>Practise letter <span id="practiceLetter">A</span></h1>
+          <p class="practice-lead">Match the fixed reference image while the camera tracks your hand.</p>
+        </div>
         <span id="statusBadge" class="badge neutral">Camera off</span>
       </div>
+
       <div class="practice-card">
-        <div class="camera-stage" id="cameraStage">
-          <video id="webcam" autoplay playsinline muted></video>
-          <canvas id="overlay"></canvas>
-          <img id="signGuide" class="sign-guide" src="/images/img_A.png" alt="ISL letter A reference">
-          <div class="ar-guide-label">AR GUIDE · TARGET LETTER A</div>
-          <div class="camera-placeholder" id="placeholder">
-            <div class="camera-icon">◎</div><h3>Your camera preview appears here</h3>
-            <p>Use a well-lit room and keep your hand inside the frame.</p>
+        <div class="practice-workspace">
+          <div class="camera-column">
+            <div class="camera-stage" id="cameraStage">
+              <video id="webcam" autoplay playsinline muted></video>
+              <canvas id="overlay"></canvas>
+              <img id="signGuide" class="sign-guide" src="/images/img_A.png" alt="ISL letter A reference">
+              <div class="ar-guide-label">AR GUIDE · TARGET LETTER A</div>
+              <div class="camera-placeholder" id="placeholder">
+                <div class="camera-icon">◎</div>
+                <h3>Your camera preview appears here</h3>
+                <p>Use a well-lit room and keep your hand inside the frame.</p>
+              </div>
+              <div class="guide-label"><span class="guide-dot"></span> Hand landmark guide</div>
+            </div>
+            <div class="controls">
+              <button id="startBtn" class="primary" type="button">Start camera</button>
+              <button id="stopBtn" class="secondary" type="button" disabled>Stop camera</button>
+            </div>
           </div>
-          <div class="guide-label"><span class="guide-dot"></span> Hand landmark guide</div>
+
+          <div class="side-column">
+            <section class="gesture-guide-card" aria-label="ISL reference image and gesture instructions">
+              <div class="guide-card-heading">
+                <p class="eyebrow">ISL learning guide</p>
+                <h2>Reference image &amp; instructions</h2>
+                <p>Follow the reference image and the steps for the selected letter.</p>
+              </div>
+              <section class="gesture-reference" aria-live="polite" aria-label="ISL gesture reference and instructions">
+                <div class="gesture-reference-image-wrap">
+                  <img id="gestureReferenceImage" src="/images/img_A.png" alt="Reference image for letter A" />
+                  <span class="reference-caption">Reference image</span>
+                </div>
+                <div class="gesture-instructions">
+                  <p class="eyebrow">How to make the sign</p>
+                  <h3 id="gestureInstructionTitle">Letter A</h3>
+                  <ol id="gestureInstructionSteps">
+                    <li>Make a fist with each hand.</li>
+                    <li>Bring the thumbs toward each other until their tips meet.</li>
+                    <li>Keep the other fingers folded and compare with the reference image.</li>
+                  </ol>
+                  <p id="gestureInstructionTip" class="gesture-tip">Tip: Use the reference image to check the exact hand position.</p>
+                </div>
+              </section>
+            </section>
+
+            <div class="status-row">
+              <div class="feedback" aria-live="polite">
+                <div class="feedback-icon" id="feedbackIcon">◎</div>
+                <div><b id="feedbackTitle">Ready when you are</b><p id="feedbackText">Your camera will start when you choose a letter.</p></div>
+              </div>
+              <div class="metrics">
+                <div><span>Hands detected</span><b id="handsCount">0</b></div>
+                <div><span>Practice check</span><b id="gestureResult">Waiting</b></div>
+              </div>
+            </div>
+            <div id="completionMessage" class="completion-message" role="status" hidden></div>
+            <div id="starAward" class="star-award" hidden></div>
+            <p class="fine-print">The letter check uses experimental hand-landmark measurements. It is not verified ISL recognition, so a match may occasionally be incorrect.</p>
+          </div>
         </div>
-        <div class="controls">
-          <button id="startBtn" class="primary" type="button">Start camera</button>
-          <button id="stopBtn" class="secondary" type="button" disabled>Stop camera</button>
-        </div>
-        <div class="feedback" aria-live="polite">
-          <div class="feedback-icon" id="feedbackIcon">◎</div>
-          <div><b id="feedbackTitle">Ready when you are</b><p id="feedbackText">Your camera will start when you choose a letter.</p></div>
-        </div>
-        <div id="completionMessage" class="completion-message" role="status" hidden></div>
-        <div class="metrics">
-          <div><span>Hands detected</span><b id="handsCount">0</b></div>
-          <div><span>Practice check</span><b id="gestureResult">Waiting</b></div>
-        </div>
-        <p class="fine-print">The letter check uses experimental hand-landmark measurements. It is not verified ISL recognition, so a match may occasionally be incorrect.</p>
       </div>
     </section>
   </main>
+
+  <div id="celebrationOverlay" class="celebration-overlay" aria-hidden="true" hidden>
+    <div id="celebrationParticles" class="celebration-particles"></div>
+    <div class="celebration-banner">
+      <div class="celebration-stars">✨ ⭐ ✨</div>
+      <h2 id="celebrationTitle">🎉 Congratulations! 🎉</h2>
+      <p id="celebrationSubtitle">You did it!</p>
+      <div class="celebration-stars">💖 ✨ 🌟 ✨ 💖</div>
+      <p id="celebrationScore" class="celebration-score">⭐ +1 POINT · YOUR SCORE: 1/3</p>
+      <button type="button" id="nextLevelBtn" class="primary next-level-button" hidden>Next Level →</button>
+    </div>
+  </div>
+
   <footer>SignSteps AR · Prototype · Progress resets when you refresh the page.</footer>
   <script type="module" src="/app.js"></script>
 </body>

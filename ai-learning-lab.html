@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#5b2de0" />
+  <title>AI Learning Lab | SignSteps AR</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%91%8B%3C/text%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="/ai-learning-lab.css" />
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="Back to SignSteps AR"><span class="brand-mark">SS</span><span>SignSteps <b>AR</b></span></a>
+    <a class="back-button" href="/">← Back to practice</a>
+  </header>
+
+  <main>
+    <section class="hero">
+      <span class="deco deco-circle" aria-hidden="true"></span>
+      <span class="deco deco-square" aria-hidden="true"></span>
+      <span class="deco deco-ring" aria-hidden="true"></span>
+      <span class="deco deco-star" aria-hidden="true">★</span>
+      <div class="hero-hand" aria-hidden="true"><span>✋</span></div>
+      <p class="eyebrow">AI Learning Lab</p>
+      <h1>Ask your hand sign tutor</h1>
+      <p class="lead">Ask how to make a sign, what a gesture means, or how to place your fingers. Get short, clear steps in the language you choose.</p>
+    </section>
+
+    <section class="tutor-card" aria-labelledby="tutor-title">
+      <div class="tutor-head">
+        <h2 id="tutor-title">Sign tutor</h2>
+        <span class="status" id="status">Checking…</span>
+      </div>
+
+      <label class="field" for="language">Answer in
+        <select id="language">
+          <option>English</option><option>Malayalam</option><option>Tamil</option>
+          <option>Telugu</option><option>Hindi</option><option>Marathi</option>
+        </select>
+      </label>
+
+      <label class="field" for="question">Your question</label>
+      <textarea id="question" maxlength="1000" placeholder="Example: How do I sign “thank you”?"></textarea>
+
+      <div class="chips" aria-label="Try one of these">
+        <button type="button" class="chip">How do I sign “thank you”?</button>
+        <button type="button" class="chip">How is the letter A made?</button>
+        <button type="button" class="chip">What does a thumbs-up mean?</button>
+        <button type="button" class="chip">How do I sign “hello”?</button>
+      </div>
+
+      <div class="actions">
+        <span class="count" id="char-count">0 / 1000</span>
+        <button class="primary" id="ask-btn" type="button">Ask the tutor</button>
+      </div>
+
+      <div class="answer-card" id="tutor-answer" aria-live="polite">
+        <div class="placeholder">
+          <div class="placeholder-icon">✦</div>
+          <h3>Your answer shows up here</h3>
+          <p>Pick a question above or type your own.</p>
+        </div>
+      </div>
+      <p class="fine-print">The tutor can make mistakes. Check exact finger positions with a trusted sign-language source or instructor.</p>
+    </section>
+  </main>
+
+  <footer>SignSteps AR · Educational prototype</footer>
+  <script type="module" src="/ai-learning-lab.js"></script>
+</body>
+</html>

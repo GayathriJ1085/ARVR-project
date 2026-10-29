@@ -1,4 +1,3 @@
-
 import { FilesetResolver, HandLandmarker } from "@mediapipe/tasks-vision";
 
 const video = document.querySelector("#webcam");
@@ -36,6 +35,48 @@ let showARGuide = true;
 let guideOpacity = 0.4;
 
 const signGuide = document.querySelector("#signGuide");
+const gestureReferenceImage = document.querySelector("#gestureReferenceImage");
+const gestureInstructionTitle = document.querySelector("#gestureInstructionTitle");
+const gestureInstructionSteps = document.querySelector("#gestureInstructionSteps");
+const gestureInstructionTip = document.querySelector("#gestureInstructionTip");
+
+// These instructions describe the supplied project reference images. Confirm them
+// with an ISL instructor before presenting the app as an authoritative ISL course.
+const gestureGuides = {
+  A: {
+    alt: "Two closed fists with the thumbs meeting at the top",
+    steps: ["Make a fist with each hand.", "Bring the thumbs toward each other until their tips meet.", "Keep the other fingers folded and compare with the reference image."],
+    tip: "Tip: Keep both fists level and bring only the thumb tips together."
+  },
+  B: {
+    alt: "Both hands curved into small circles with thumb and index fingertips meeting near the centre",
+    steps: ["Curve the thumb and index finger of each hand toward each other.", "Bring each thumb tip and index fingertip together to form a small loop.", "Curve the remaining fingers naturally and bring both hands together as shown."],
+    tip: "Tip: The supplied B reference shows two pinching/loop shapes meeting in the middle."
+  },
+  C: {
+    alt: "One hand curved into a C shape with space between the thumb and fingers",
+    steps: ["Use one hand and curve the fingers together into a rounded arc.", "Move the thumb away from the fingers, leaving a clear C-shaped gap.", "Keep the palm turned sideways enough for the C shape to be visible."],
+    tip: "Tip: Keep the gap open; do not let the thumb touch the fingertips."
+  }
+};
+
+function updateGestureInstructions() {
+  const guide = gestureGuides[currentSign];
+  if (!guide) return;
+  if (gestureReferenceImage) {
+    gestureReferenceImage.src = signImages[currentSign].src;
+    gestureReferenceImage.alt = `Reference for letter ${currentSign}: ${guide.alt}`;
+  }
+  if (gestureInstructionTitle) gestureInstructionTitle.textContent = `Letter ${currentSign}`;
+  if (gestureInstructionSteps) {
+    gestureInstructionSteps.replaceChildren(...guide.steps.map((step) => {
+      const li = document.createElement("li");
+      li.textContent = step;
+      return li;
+    }));
+  }
+  if (gestureInstructionTip) gestureInstructionTip.textContent = guide.tip;
+}
 
 function updateSignGuide() {
   signGuide.src = signImages[currentSign].src;
@@ -43,6 +84,7 @@ function updateSignGuide() {
   signGuide.style.opacity = showARGuide
     ? String(guideOpacity)
     : "0";
+  updateGestureInstructions();
 }
 
 // ------------------------------
@@ -54,8 +96,47 @@ const practiceScreen = document.querySelector("#practiceScreen");
 const backBtn = document.querySelector("#backBtn");
 const welcomeButtons = document.querySelectorAll(".level-btn");
 const completionMessage = document.querySelector("#completionMessage");
+const nextLevelBtn = document.querySelector("#nextLevelBtn");
+const starAward = document.querySelector("#starAward");
+const progressText = document.querySelector("#progressText");
+const progressFill = document.querySelector("#progressFill");
+const totalStars = document.querySelector("#totalStars");
+const celebrationOverlay = document.querySelector("#celebrationOverlay");
+const celebrationParticles = document.querySelector("#celebrationParticles");
+const celebrationTitle = document.querySelector("#celebrationTitle");
+const celebrationSubtitle = document.querySelector("#celebrationSubtitle");
+let celebrationTimer = null;
+
+function showCelebration(letter, nextLetter) {
+  if (celebrationTimer) clearTimeout(celebrationTimer);
+  celebrationParticles.replaceChildren();
+
+  celebrationTitle.textContent = nextLetter
+    ? `🎉 Letter ${letter} completed! 🎉`
+    : "🏆 You completed all three letters! 🏆";
+  celebrationSubtitle.textContent = nextLetter
+    ? `Amazing work! Letter ${nextLetter} is unlocked.`
+    : "Amazing work! You finished A, B, and C!";
+
+  const symbols = ["✨", "⭐", "🌟", "🎉", "💖", "✦", "✧", "🎊"];
+  for (let i = 0; i < 100; i++) {
+    const particle = document.createElement("span");
+    particle.className = "celebration-particle";
+    particle.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+    particle.style.setProperty("--x", `${Math.random() * 100}%`);
+    particle.style.setProperty("--size", `${14 + Math.random() * 22}px`);
+    particle.style.setProperty("--duration", `${2.2 + Math.random() * 2.2}s`);
+    particle.style.setProperty("--delay", `${Math.random() * 0.9}s`);
+    particle.style.setProperty("--drift", `${-100 + Math.random() * 200}px`);
+    celebrationParticles.appendChild(particle);
+  }
+
+  celebrationOverlay.hidden = false;
+  celebrationOverlay.setAttribute("aria-hidden", "false");
+}
 
 const completedLetters = new Set(); // Progress resets when the page is refreshed.
+const pointsByLetter = { A: 0, B: 0, C: 0 };
 let completedThisPractice = false;
 
 function refreshLevelButtons() {
@@ -70,20 +151,33 @@ function refreshLevelButtons() {
     button.disabled = !isUnlocked;
     button.classList.toggle("completed", isCompleted);
     button.classList.toggle("locked", !isUnlocked);
-    button.textContent = isCompleted ? `${letter} ✓` : letter;
-    button.setAttribute(
-      "aria-label",
-      isCompleted ? `Letter ${letter}, completed` :
-      !isUnlocked ? `Letter ${letter}, locked` : `Practise letter ${letter}`
-    );
+    const letterLabel = button.querySelector(".level-letter");
+    const caption = button.querySelector(".level-caption");
+    if (letterLabel) letterLabel.textContent = isCompleted ? `${letter} ✓` : letter;
+    if (caption) caption.textContent = isCompleted ? "Completed" : (isUnlocked ? `Level ${letter === "A" ? 1 : letter === "B" ? 2 : 3}` : `🔒 Level ${letter === "B" ? 2 : 3}`);
+    const stars = button.querySelector(`[data-stars="${letter}"]`);
+    if (stars) stars.textContent = completedLetters.has(letter) ? "★ +1 point" : "☆ Not completed";
+    button.setAttribute("aria-label", isCompleted ? `Letter ${letter}, completed, one point earned` : !isUnlocked ? `Letter ${letter}, locked` : `Practise letter ${letter}`);
   });
+  const count = completedLetters.size;
+  if (progressText) progressText.textContent = `${count} / 3 levels complete`;
+  if (progressFill) progressFill.style.width = `${count / 3 * 100}%`;
+  const earned = completedLetters.size;
+  if (totalStars) totalStars.textContent = `⭐ Score: ${earned}/3 points`;
 }
 
 function openPractice(letter) {
+  if (celebrationTimer) clearTimeout(celebrationTimer);
+  celebrationTimer = null;
+  celebrationOverlay.hidden = true;
+  celebrationOverlay.setAttribute("aria-hidden", "true");
+  celebrationParticles.replaceChildren();
   currentSign = letter;
   document.querySelector("#practiceLetter").textContent = letter;
   completedThisPractice = false;
   completionMessage.hidden = true;
+  starAward.hidden = true;
+  nextLevelBtn.hidden = true;
   welcomeScreen.hidden = true;
   practiceScreen.hidden = false;
 
@@ -107,6 +201,11 @@ function openPractice(letter) {
 }
 
 function returnToWelcome() {
+  if (celebrationTimer) clearTimeout(celebrationTimer);
+  celebrationTimer = null;
+  celebrationOverlay.hidden = true;
+  celebrationOverlay.setAttribute("aria-hidden", "true");
+  celebrationParticles.replaceChildren();
   stopCamera();
   practiceScreen.hidden = true;
   welcomeScreen.hidden = false;
@@ -121,27 +220,39 @@ welcomeButtons.forEach((button) => {
 });
 
 backBtn.addEventListener("click", returnToWelcome);
+nextLevelBtn.addEventListener("click", () => {
+  const nextLetter = currentSign === "A" ? "B" : currentSign === "B" ? "C" : null;
+  if (nextLetter) openPractice(nextLetter);
+  else returnToWelcome();
+});
 
 function completeCurrentLetter() {
   if (completedThisPractice || completedLetters.has(currentSign)) return;
 
   completedThisPractice = true;
   completedLetters.add(currentSign);
+  pointsByLetter[currentSign] = 1;
   refreshLevelButtons();
 
-  const nextLetter = currentSign === "A" ? "B" :
-    currentSign === "B" ? "C" : null;
-
+  const nextLetter = currentSign === "A" ? "B" : currentSign === "B" ? "C" : null;
+  const score = completedLetters.size;
   completionMessage.hidden = false;
   completionMessage.textContent = nextLetter
-    ? `🎉 Congratulations! Letter ${currentSign} completed. Go back and try letter ${nextLetter} next!`
-    : "🎉 Congratulations! You completed letters A, B, and C!";
+    ? `🎉 Letter ${currentSign} completed! Letter ${nextLetter} is unlocked.`
+    : "🏆 Amazing! You completed all three letters!";
+  starAward.hidden = false;
+  starAward.innerHTML = `<div class="star-award-title">+1 POINT</div><div class="earned-stars">⭐</div><div class="star-award-note">Your score: ${score}/3 points</div>`;
+  nextLevelBtn.hidden = false;
+  nextLevelBtn.textContent = nextLetter ? `Next Level: ${nextLetter} →` : "Finish Journey ✓";
 
+  showCelebration(currentSign, nextLetter);
+  // Put the score and navigation inside the celebration popup.
+  const popupScore = document.querySelector("#celebrationScore");
+  if (popupScore) popupScore.textContent = `⭐ +1 POINT · YOUR SCORE: ${score}/3`;
+  nextLevelBtn.hidden = false;
   setFeedback(
     `Letter ${currentSign} completed!`,
-    nextLetter
-      ? `Great job! Letter ${nextLetter} is now unlocked. Click Back to return to the welcome page.`
-      : "Great job! You have finished all three practice letters.",
+    nextLetter ? `Great job! Letter ${nextLetter} is unlocked. Click Next Level to continue.` : "Great job! You have finished all three practice letters.",
     "🎉"
   );
 }
@@ -155,6 +266,8 @@ let landmarker = null;
 let running = false;
 let lastVideoTime = -1;
 let lastCheckAt = 0;
+let correctSince = 0;
+const HOLD_DURATION_MS = 2500; // Gesture must remain correct for 2.5 continuous seconds.
 
 const connections = [
   [0, 1], [1, 2], [2, 3], [3, 4],
@@ -285,6 +398,7 @@ async function startCamera() {
 
 function stopCamera() {
   running = false;
+  correctSince = 0;
 
   if (stream) {
     stream.getTracks().forEach((track) => track.stop());
@@ -633,17 +747,33 @@ function processFrame() {
         const isCorrect = checkSelectedSign(hands);
 
         if (isCorrect) {
-          completeCurrentLetter();
-        }
+          // Only accept a gesture if it stays correct continuously for 2.5 seconds.
+          const now = performance.now();
+          if (correctSince === 0) correctSince = now;
+          const heldFor = now - correctSince;
+          const remaining = Math.max(0, (HOLD_DURATION_MS - heldFor) / 1000);
 
-        if (!completedThisPractice) {
-          showSignFeedback(isCorrect);
+          if (heldFor >= HOLD_DURATION_MS) {
+            completeCurrentLetter();
+          } else if (!completedThisPractice) {
+            gestureResult.textContent = `Hold still: ${remaining.toFixed(1)}s`;
+            setFeedback(
+              `Letter ${currentSign} — keep holding`,
+              `The gesture looks like ${currentSign}. Keep the same hand position steady for ${remaining.toFixed(1)} more seconds (2.5 seconds total).`,
+              "⏱"
+            );
+          }
+        } else {
+          // Any mismatch resets the timer; the whole hold must be continuous.
+          correctSince = 0;
+          if (!completedThisPractice) showSignFeedback(false);
         }
       }
 
       setStatus("Hand detected", "good");
 
     } else {
+      correctSince = 0;
       gestureResult.textContent = "No hand";
 
       if (!completedThisPractice) {
@@ -673,6 +803,7 @@ window.addEventListener("resize", resizeCanvas);
 window.addEventListener("beforeunload", () => {
   stream?.getTracks().forEach((track) => track.stop());
 });
+
 
 // ------------------------------
 // INITIAL PAGE STATE
