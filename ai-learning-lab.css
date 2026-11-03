@@ -43,7 +43,7 @@ button, select, textarea { font-family: var(--body); }
 .back-button:hover { transform: translateY(-2px); box-shadow: 0 6px 0 var(--ink); }
 .back-button:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--ink); }
 
-main { width: min(920px, 94vw); margin: 28px auto 20px; }
+main { width: min(1500px, 94vw); margin: 28px auto 20px; }
 
 /* Hero */
 .hero {
@@ -100,13 +100,16 @@ textarea {
 }
 textarea::placeholder { color: #9b94bd; }
 
-.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.chips-label { margin: 14px 0 8px; color: var(--ink-soft); font-size: 13px; font-weight: 800; }
+.chips { display: flex; flex-wrap: wrap; gap: 10px; }
 .chip {
-  padding: 8px 14px; border-radius: 999px; background: var(--violet-pale); color: var(--violet-deep);
-  border: 2px solid var(--violet-pale); font-size: 13px; font-weight: 800; cursor: pointer;
-  transition: border-color .15s, background .15s;
+  padding: 9px 16px; border-radius: 999px; background: var(--white); color: var(--ink);
+  border: 3px solid var(--ink); box-shadow: 0 4px 0 var(--ink); font-size: 14px; font-weight: 800; cursor: pointer;
+  transition: transform .15s, box-shadow .15s, background .15s;
 }
-.chip:hover { border-color: var(--violet); background: var(--white); }
+.chip::before { content: "✋ "; }
+.chip:hover { background: var(--violet-pale); transform: translateY(-2px); box-shadow: 0 6px 0 var(--ink); }
+.chip:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--ink); }
 
 .actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 18px 0 22px; }
 .count { color: var(--ink-soft); font-size: 13px; font-weight: 700; }
@@ -174,3 +177,17 @@ footer { padding: 26px 10px 34px; text-align: center; color: var(--ink-soft); fo
   .count { text-align: right; }
 }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+/* Desktop: question on the left, answer on the right, filling the width like the main page */
+.tutor-grid { display: block; }
+@media (min-width: 1000px) {
+  .hero { padding: 44px 40px 52px; }
+  .hero h1 { max-width: 860px; }
+  .lead { max-width: 720px; font-size: 20px; }
+  .tutor-card { padding: 36px 40px 40px; }
+  .tutor-grid { display: grid; grid-template-columns: minmax(380px, 5fr) 6fr; gap: 36px; align-items: stretch; }
+  .tutor-right { display: flex; flex-direction: column; }
+  .tutor-right .answer-card { flex: 1; min-height: 420px; padding: 28px; }
+  .answer { font-size: 17px; }
+  select { width: 100%; }
+}

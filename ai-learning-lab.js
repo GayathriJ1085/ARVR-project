@@ -64,9 +64,21 @@ async function ask() {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ language: language.value, question: text }),
     });
-    const data = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(data.error || `Request failed (${response.status})`);
-    answerBox.innerHTML = `<div class="answer${data.offTopic ? ' notice' : ''}">${formatAnswer(data.answer || 'No answer came back.')}</div>`;
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      throw new Error(data.error || `Request failed (${response.status})`);
+    }
+    const offTopic = response.headers.get('X-Off-Topic') === '1';
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let full = '';
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      full += decoder.decode(value, { stream: true });
+      answerBox.innerHTML = `<div class="answer${offTopic ? ' notice' : ''}">${formatAnswer(full)}</div>`;
+    }
+    if (!full.trim()) answerBox.innerHTML = '<p class="error">No answer came back. Please try again.</p>';
   } catch (error) {
     answerBox.innerHTML = `<p class="error" role="alert">${escapeHtml(error.message)}</p><p class="fine-print">Make sure both terminals are running: <code>node server.js</code> and <code>npm run dev</code>.</p>`;
   } finally {
